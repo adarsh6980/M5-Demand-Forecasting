@@ -22,6 +22,11 @@ from feature_engineering import prepare_features, get_feature_columns
 from drift_detection import DriftMonitor
 from business_rules import BusinessRuleEngine
 from forecasting import ForecastingEngine
+from visualisation import (
+    plot_sales_trend,
+    plot_promo_effect,
+    plot_price_vs_sales
+)
 
 import logging
 
@@ -125,10 +130,26 @@ def step_clean_data():
         info("Price range", f"${pos_df['price'].min():.2f} – ${pos_df['price'].max():.2f}")
         
         return pos_df
+    
+# ═══════════════════════════════════════════════════════════════════════
+# STEP 2: DATA VISUALISATION
+# ═══════════════════════════════════════════════════════════════════════
 
+def step_visualization(pos_df):
+    """Generate exploratory visualisations."""
+    header("STEP 2 — DATA VISUALISATION", "📊")
+
+    subheader("Sales Trend Over Time")
+    plot_sales_trend(pos_df)
+
+    subheader("Promotion Effect on Demand")
+    plot_promo_effect(pos_df)
+
+    subheader("Price vs Demand Relationship")
+    plot_price_vs_sales(pos_df)
 
 # ═══════════════════════════════════════════════════════════════════════
-# STEP 2: FEATURE ENGINEERING
+# STEP 3: FEATURE ENGINEERING
 # ═══════════════════════════════════════════════════════════════════════
 
 def step_features(pos_df):
@@ -155,7 +176,7 @@ def step_features(pos_df):
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# STEP 3: MODEL TRAINING
+# STEP 4: MODEL TRAINING
 # ═══════════════════════════════════════════════════════════════════════
 
 def step_train(features_df, feature_cols):
@@ -230,7 +251,7 @@ def step_train(features_df, feature_cols):
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# STEP 4: DRIFT DETECTION
+# STEP 5: DRIFT DETECTION
 # ═══════════════════════════════════════════════════════════════════════
 
 def step_drift_detection(all_predictions):
@@ -319,7 +340,7 @@ def step_drift_detection(all_predictions):
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# STEP 5: BUSINESS RULES APPLICATION
+# STEP 6: BUSINESS RULES APPLICATION
 # ═══════════════════════════════════════════════════════════════════════
 
 def step_business_rules(pos_df):
@@ -422,23 +443,27 @@ def main():
     print(c("╚" + "═" * 70 + "╝", TermColors.CYAN))
     
     # Step 1: Load / Clean data
-    progress(1, 5, "Data Loading & Cleaning")
+    progress(1, 6, "Data Loading & Cleaning")
     pos_df = step_clean_data()
+
+    # Step 2: Visualisation
+    progress(2, 6, "Data Visualisation")
+    step_visualization(pos_df)
     
     # Step 2: Feature Engineering
-    progress(2, 5, "Feature Engineering")
+    progress(3, 6, "Feature Engineering")
     features_df, feature_cols = step_features(pos_df)
     
     # Step 3: Train Models
-    progress(3, 5, "Model Training")
+    progress(4, 6, "Model Training")
     engine, all_predictions = step_train(features_df, feature_cols)
     
     # Step 4: Drift Detection
-    progress(4, 5, "Drift Detection")
+    progress(5, 6, "Drift Detection")
     drift_results = step_drift_detection(all_predictions)
     
     # Step 5: Business Rules
-    progress(5, 5, "Business Rules")
+    progress(6, 6, "Business Rules")
     step_business_rules(pos_df)
     
     # Final summary
