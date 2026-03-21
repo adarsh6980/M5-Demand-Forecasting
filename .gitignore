@@ -30,3 +30,6 @@ models/*.pkl
 
 # Logs
 logs/
+
+# Visualisation outputs
+outputs/
