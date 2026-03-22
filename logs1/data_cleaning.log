@@ -1,0 +1,22 @@
+M5 Raw Data Cleaning — 2026-03-22T16:45:59.423809
+============================================================
+
+  Loading calendar from calendar.xlsx...
+  Filled 1,807 missing values in 'event_name_1'
+  Filled 1,807 missing values in 'event_type_1'
+  Filled 1,964 missing values in 'event_name_2'
+  Filled 1,964 missing values in 'event_type_2'
+Calendar: (1969, 14) → (1969, 16), saved to /Users/adarsh/Library/CloudStorage/OneDrive-TUSMM/m5-demand-forecasting/data_cleaned/calendar_cleaned.csv
+  Loading sales data from sales_train_validation.csv...
+  Filtered to store 'CA_1': 3,049 items (from 30,490)
+  Selected top 30 items by sales volume
+Sales: (30490, 1919) → (30, 1919), saved to /Users/adarsh/Library/CloudStorage/OneDrive-TUSMM/m5-demand-forecasting/data_cleaned/sales_train_validation_cleaned.csv
+  Loading prices from sell_prices.csv...
+  Filtered to store 'CA_1': 698,412 records
+  Filtered to 30 valid items: 8,208 records (from 698,412)
+Prices: (6841121, 4) → (8208, 4), saved to /Users/adarsh/Library/CloudStorage/OneDrive-TUSMM/m5-demand-forecasting/data_cleaned/sell_prices_cleaned.csv
+
+Cleaning complete in 2.9s
+Calendar:  1,969 rows
+Sales:     30 rows
+Prices:    8,208 rows

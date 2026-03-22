@@ -1,0 +1,88 @@
+M5 Raw CSV Pipeline Run — 2026-03-22T16:51:01.419128
+============================================================
+
+Step 1: Loaded 55,626 records, 30 SKUs
+  Date range: 2011-01-29 → 2016-04-24
+
+Step 2: Feature engineering → 55,626 records, 14 features
+
+Step 3: Trained 30/30 models
+  FOODS_2_019: MAE=4.77, RMSE=6.06, R²=0.208
+  FOODS_2_197: MAE=5.92, RMSE=7.37, R²=0.138
+  FOODS_2_276: MAE=4.13, RMSE=5.23, R²=0.231
+  FOODS_2_347: MAE=5.52, RMSE=6.86, R²=0.053
+  FOODS_3_064: MAE=8.13, RMSE=11.04, R²=-0.055
+  FOODS_3_080: MAE=5.33, RMSE=6.61, R²=0.122
+  FOODS_3_090: MAE=18.94, RMSE=26.44, R²=0.391
+  FOODS_3_099: MAE=4.80, RMSE=6.24, R²=0.155
+  FOODS_3_120: MAE=15.94, RMSE=21.02, R²=0.429
+  FOODS_3_202: MAE=4.60, RMSE=6.62, R²=0.600
+  FOODS_3_252: MAE=7.05, RMSE=9.31, R²=0.673
+  FOODS_3_282: MAE=8.42, RMSE=10.98, R²=0.309
+  FOODS_3_295: MAE=6.83, RMSE=10.04, R²=0.507
+  FOODS_3_318: MAE=5.14, RMSE=8.17, R²=-0.140
+  FOODS_3_319: MAE=3.39, RMSE=4.77, R²=0.331
+  FOODS_3_491: MAE=5.95, RMSE=7.27, R²=0.202
+  FOODS_3_501: MAE=7.97, RMSE=12.39, R²=0.399
+  FOODS_3_541: MAE=5.74, RMSE=7.58, R²=0.303
+  FOODS_3_555: MAE=4.21, RMSE=5.27, R²=0.386
+  FOODS_3_586: MAE=8.03, RMSE=10.24, R²=0.556
+  FOODS_3_587: MAE=7.15, RMSE=9.20, R²=0.158
+  FOODS_3_607: MAE=4.26, RMSE=5.39, R²=0.221
+  FOODS_3_635: MAE=5.19, RMSE=6.60, R²=0.229
+  FOODS_3_681: MAE=7.17, RMSE=9.96, R²=0.516
+  FOODS_3_694: MAE=3.92, RMSE=4.89, R²=0.020
+  FOODS_3_714: MAE=5.69, RMSE=7.47, R²=0.565
+  FOODS_3_723: MAE=5.41, RMSE=7.51, R²=0.341
+  FOODS_3_741: MAE=7.27, RMSE=9.67, R²=0.096
+  FOODS_3_785: MAE=8.29, RMSE=11.09, R²=0.336
+  FOODS_3_808: MAE=7.42, RMSE=9.00, R²=0.316
+
+Step 4: Drift Detection
+  Drift detected: 0 SKUs
+  Warning: 0 SKUs
+  Stable: 30 SKUs
+  FOODS_2_019: drift=False, severity=0.0, mean_res=0.51
+  FOODS_2_197: drift=False, severity=0.0, mean_res=0.20
+  FOODS_2_276: drift=False, severity=0.0, mean_res=-0.26
+  FOODS_2_347: drift=False, severity=0.0, mean_res=-1.28
+  FOODS_3_064: drift=False, severity=0.0, mean_res=1.41
+  FOODS_3_080: drift=False, severity=0.0, mean_res=-0.41
+  FOODS_3_090: drift=False, severity=0.0, mean_res=-13.45
+  FOODS_3_099: drift=False, severity=0.0, mean_res=-1.11
+  FOODS_3_120: drift=False, severity=0.0, mean_res=-1.36
+  FOODS_3_202: drift=False, severity=0.0, mean_res=0.23
+  FOODS_3_252: drift=False, severity=0.0, mean_res=-0.16
+  FOODS_3_282: drift=False, severity=0.0, mean_res=-1.79
+  FOODS_3_295: drift=False, severity=0.0, mean_res=1.01
+  FOODS_3_318: drift=False, severity=0.0, mean_res=-4.17
+  FOODS_3_319: drift=False, severity=0.0, mean_res=-0.38
+  FOODS_3_491: drift=False, severity=0.0, mean_res=-4.47
+  FOODS_3_501: drift=False, severity=0.0, mean_res=2.01
+  FOODS_3_541: drift=False, severity=0.0, mean_res=-5.36
+  FOODS_3_555: drift=False, severity=0.0, mean_res=-0.86
+  FOODS_3_586: drift=False, severity=0.0, mean_res=-2.06
+  FOODS_3_587: drift=False, severity=0.0, mean_res=-1.71
+  FOODS_3_607: drift=False, severity=0.0, mean_res=-0.80
+  FOODS_3_635: drift=False, severity=0.0, mean_res=-4.35
+  FOODS_3_681: drift=False, severity=0.0, mean_res=0.21
+  FOODS_3_694: drift=False, severity=0.0, mean_res=-2.36
+  FOODS_3_714: drift=False, severity=0.0, mean_res=-2.95
+  FOODS_3_723: drift=False, severity=0.0, mean_res=-3.27
+  FOODS_3_741: drift=False, severity=0.0, mean_res=-1.91
+  FOODS_3_785: drift=False, severity=0.0, mean_res=-5.42
+  FOODS_3_808: drift=False, severity=0.0, mean_res=-6.30
+
+Step 5: Business Rules
+  Total forecast: 3,544
+  Total order: 1,960
+  Reduction: 44.7%
+  SKUs capped: 1/30
+
+Images saved to /Users/adarsh/Library/CloudStorage/OneDrive-TUSMM/m5-demand-forecasting/Images1
+
+============================================================
+Pipeline complete in 3.8s
+Records: 55,626, SKUs: 30
+Models: 30, Drift events: 0
+Order reduction: 44.7%
