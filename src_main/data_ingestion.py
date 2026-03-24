@@ -15,9 +15,6 @@ logger = logging.getLogger(__name__)
 BASE_PATH = Path(__file__).parent.parent
 CLEANED_PATH = BASE_PATH / "data_cleaned"
 
-TARGET_STORE = "CA_1"
-
-
 def load_calendar(filepath: Optional[str] = None) -> pd.DataFrame:
     """Load cleaned calendar data."""
     if filepath is None:
@@ -55,8 +52,9 @@ def melt_and_merge(sales_df: pd.DataFrame, calendar_df: pd.DataFrame,
                    prices_df: pd.DataFrame) -> pd.DataFrame:
     """
     Melt wide-format sales into long-format and merge with calendar + prices
-    to create a unified DataFrame.
+    to create a unified DataFrame for ALL stores.
 
+    SKU = store_id + '_' + item_id (unique per store-item combo).
     Output columns: date, sku, store_id, units_sold, price, promo_flag, cat_id, dept_id
     """
     logger.info("Melting and merging data...")
@@ -79,24 +77,27 @@ def melt_and_merge(sales_df: pd.DataFrame, calendar_df: pd.DataFrame,
     cal_cols = calendar_df[['d', 'date', 'wm_yr_wk', 'promo_flag']].copy()
     long_df = long_df.merge(cal_cols, on='d', how='left')
 
-    # Merge with prices
-    prices_cols = ['item_id', 'wm_yr_wk', 'sell_price']
-    if 'store_id' in prices_df.columns:
-        prices_filtered = prices_df[prices_df['store_id'] == TARGET_STORE].copy()
-    else:
-        prices_filtered = prices_df.copy()
+    # Merge with prices on store_id + item_id + wm_yr_wk
+    merge_keys = ['item_id', 'wm_yr_wk']
+    price_cols_to_use = ['item_id', 'wm_yr_wk', 'sell_price']
+    if 'store_id' in prices_df.columns and 'store_id' in long_df.columns:
+        merge_keys.append('store_id')
+        price_cols_to_use.append('store_id')
 
     long_df = long_df.merge(
-        prices_filtered[prices_cols],
-        on=['item_id', 'wm_yr_wk'],
+        prices_df[price_cols_to_use],
+        on=merge_keys,
         how='left'
     )
 
-    # Rename to match project schema
-    long_df = long_df.rename(columns={
-        'item_id': 'sku',
-        'sell_price': 'price'
-    })
+    # Create composite SKU: store_id + item_id
+    if 'store_id' in long_df.columns:
+        long_df['sku'] = long_df['store_id'] + '_' + long_df['item_id']
+    else:
+        long_df['sku'] = long_df['item_id']
+
+    # Rename price column
+    long_df = long_df.rename(columns={'sell_price': 'price'})
 
     # Drop rows with missing prices (items not yet on sale)
     before = len(long_df)

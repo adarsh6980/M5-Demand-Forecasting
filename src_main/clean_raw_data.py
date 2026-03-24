@@ -25,9 +25,8 @@ DATA_PATH = BASE_PATH / "data"
 CLEANED_PATH = BASE_PATH / "data_cleaned"
 LOG_PATH = BASE_PATH / "logs1"
 
-# Sampling config
-TARGET_STORE = "CA_1"
-TOP_N_ITEMS = 30
+# Config — no store filter, use ALL stores and ALL items
+# TARGET_STORE removed to include all stores
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -129,9 +128,11 @@ def clean_calendar(log_file=None):
     # ── Create promo_flag ──
     cal['has_event'] = (cal.get('event_name_1', pd.Series([''] * len(cal))) != '').astype(int)
 
-    snap_col = f'snap_{TARGET_STORE.split("_")[0]}'  # snap_CA for CA_1
-    if snap_col in cal.columns:
-        cal['promo_flag'] = ((cal['has_event'] == 1) | (cal[snap_col] == 1)).astype(int)
+    # Create promo_flag from events + any SNAP
+    snap_cols = [col for col in cal.columns if col.startswith('snap_')]
+    if snap_cols:
+        cal['any_snap'] = cal[snap_cols].max(axis=1)
+        cal['promo_flag'] = ((cal['has_event'] == 1) | (cal['any_snap'] == 1)).astype(int)
     else:
         cal['promo_flag'] = cal['has_event']
 
@@ -187,7 +188,7 @@ def clean_sales_train_validation(log_file=None):
     """
     Clean sales_train_validation.csv
     - Filter to target store (CA_1)
-    - Select top N items by total sales volume
+    - Keep ALL items (no sampling)
     - Validate non-negative sales
     - Check for missing day columns
     - Remove items with zero total sales
@@ -210,14 +211,10 @@ def clean_sales_train_validation(log_file=None):
     info("Day columns", f"{len(day_cols)} (d_1 → d_{len(day_cols)})")
     info("ID columns", f"{', '.join(id_cols)}")
 
-    # ── Filter to target store ──
-    if 'store_id' in df.columns:
-        store_df = df[df['store_id'] == TARGET_STORE].copy()
-        msg = f"  Filtered to store '{TARGET_STORE}': {len(store_df):,} items (from {len(df):,})"
-    else:
-        store_df = df.copy()
-        msg = f"  No store_id column — using all {len(df):,} items"
-    print(f"     {c('→', TermColors.DIM)} {msg}")
+    # ── Keep ALL stores (no store filter) ──
+    store_df = df.copy()
+    msg = f"  Keeping ALL stores: {len(store_df):,} items across {df['store_id'].nunique() if 'store_id' in df.columns else 1} stores"
+    print(f"     {c('✅', TermColors.GREEN)} {msg}")
     if log_file:
         log_file.write(msg + "\n")
 
@@ -251,10 +248,10 @@ def clean_sales_train_validation(log_file=None):
         if log_file:
             log_file.write(msg + "\n")
 
-    # ── Select top N items ──
-    top_items = store_df.nlargest(TOP_N_ITEMS, 'total_sales').copy()
-    msg = f"  Selected top {len(top_items)} items by sales volume"
-    print(f"     {c('→', TermColors.DIM)} {msg}")
+    # ── Keep ALL items (no top-N sampling) ──
+    top_items = store_df.copy()
+    msg = f"  Keeping ALL {len(top_items):,} items (no sampling)"
+    print(f"     {c('✅', TermColors.GREEN)} {msg}")
     if log_file:
         log_file.write(msg + "\n")
 
@@ -326,13 +323,11 @@ def clean_sell_prices(valid_items=None, log_file=None):
     original_shape = prices.shape
     info("Raw shape", f"{original_shape[0]:,} rows × {original_shape[1]} columns")
 
-    # ── Filter to target store ──
-    if 'store_id' in prices.columns:
-        prices = prices[prices['store_id'] == TARGET_STORE].copy()
-        msg = f"  Filtered to store '{TARGET_STORE}': {len(prices):,} records"
-        print(f"     {c('→', TermColors.DIM)} {msg}")
-        if log_file:
-            log_file.write(msg + "\n")
+    # ── Keep ALL stores (no store filter) ──
+    msg = f"  Keeping ALL stores: {len(prices):,} records"
+    print(f"     {c('✅', TermColors.GREEN)} {msg}")
+    if log_file:
+        log_file.write(msg + "\n")
 
     # ── Filter to valid items ──
     if valid_items is not None and 'item_id' in prices.columns:

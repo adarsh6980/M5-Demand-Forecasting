@@ -33,3 +33,5 @@ logs/
 
 # Visualisation outputs
 outputs/
+data_cleaned/*.csv
+data_cleaned/*.csv

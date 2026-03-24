@@ -47,8 +47,7 @@ MODELS_PATH = BASE_PATH / "models1"
 IMAGES_PATH = BASE_PATH / "Images1"
 LOGS_PATH = BASE_PATH / "logs1"
 
-TARGET_STORE = "CA_1"
-TOP_N_ITEMS = 30
+
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -166,7 +165,7 @@ def step_clean_and_load(log_file=None):
     subheader("Merged Dataset")
     info("Records", f"{len(pos_df):,}")
     info("SKUs", f"{pos_df['sku'].nunique()}")
-    info("Store", pos_df['store_id'].iloc[0] if 'store_id' in pos_df.columns else "N/A")
+    info("Stores", f"{pos_df['store_id'].nunique()}" if 'store_id' in pos_df.columns else "N/A")
     info("Date range", f"{pos_df['date'].min().date()} → {pos_df['date'].max().date()}")
     info("Avg daily sales", f"{pos_df['units_sold'].mean():.1f} units")
     info("Price range", f"${pos_df['price'].min():.2f} – ${pos_df['price'].max():.2f}")
@@ -540,8 +539,8 @@ def generate_images(pos_df, training_results, drift_results, log_file=None):
     axes[0].set_ylabel('Units Sold')
     axes[0].tick_params(axis='x', rotation=45)
 
-    # SKU sales distribution
-    sku_sales = pos_df.groupby('sku')['units_sold'].sum().sort_values(ascending=True)
+    # SKU sales distribution (top 50 for readability)
+    sku_sales = pos_df.groupby('sku')['units_sold'].sum().sort_values(ascending=True).tail(50)
     axes[1].barh(range(len(sku_sales)), sku_sales.values, color='#4CAF50')
     axes[1].set_yticks(range(len(sku_sales)))
     axes[1].set_yticklabels(sku_sales.index, fontsize=6)
@@ -589,9 +588,9 @@ def generate_images(pos_df, training_results, drift_results, log_file=None):
         fig, axes = plt.subplots(1, 3, figsize=(15, 5))
         fig.suptitle('Step 3 — Model Training Results (Raw CSV Pipeline)', fontsize=14, fontweight='bold')
 
-        tr_df = pd.DataFrame(training_results)
+        tr_df = pd.DataFrame(training_results).nlargest(50, 'mae')  # Top 50 for chart
 
-        # MAE by SKU
+        # MAE by SKU (top 50)
         axes[0].barh(range(len(tr_df)), tr_df['mae'].values, color='#E91E63')
         axes[0].set_yticks(range(len(tr_df)))
         axes[0].set_yticklabels(tr_df['sku'].values, fontsize=6)
@@ -638,10 +637,10 @@ def generate_images(pos_df, training_results, drift_results, log_file=None):
         axes[0].set_title('Drift Status Distribution')
 
         # Mean residual by SKU
-        axes[1].barh(range(len(dr_df)), dr_df['mean_residual'].values,
-                      color=['#F44336' if d else '#4CAF50' for d in dr_df['drift']])
-        axes[1].set_yticks(range(len(dr_df)))
-        axes[1].set_yticklabels(dr_df['sku'].values, fontsize=6)
+        axes[1].barh(range(min(len(dr_df), 50)), dr_df['mean_residual'].values[:50],
+                      color=['#F44336' if d else '#4CAF50' for d in dr_df['drift'].values[:50]])
+        axes[1].set_yticks(range(min(len(dr_df), 50)))
+        axes[1].set_yticklabels(dr_df['sku'].values[:50], fontsize=6)
         axes[1].set_title('Mean Residual by SKU')
         axes[1].set_xlabel('Mean Residual')
         axes[1].axvline(x=0, color='black', linestyle='-', linewidth=0.5)
@@ -702,7 +701,7 @@ def main():
     print()
     print(c("╔" + "═" * 70 + "╗", TermColors.CYAN))
     print(c("║", TermColors.CYAN) + c("  🏪  M5 FORECASTING — RAW CSV DATA PIPELINE", TermColors.BOLD + TermColors.WHITE).center(83) + c("║", TermColors.CYAN))
-    print(c("║", TermColors.CYAN) + c("  Calendar │ Sales │ Prices  │  Store CA_1  │  Console Output", TermColors.DIM).center(83) + c("║", TermColors.CYAN))
+    print(c("║", TermColors.CYAN) + c("  Calendar │ Sales │ Prices  │  All Stores  │  Console Output", TermColors.DIM).center(83) + c("║", TermColors.CYAN))
     print(c("╚" + "═" * 70 + "╝", TermColors.CYAN))
 
     # Step 1: Clean & Load data
@@ -742,7 +741,8 @@ def main():
     print(f"     Merged records:   {c(f'{len(pos_df):,}', TermColors.CYAN)}")
     print(f"     SKUs:             {c(str(pos_df['sku'].nunique()), TermColors.CYAN)}")
     if 'store_id' in pos_df.columns:
-        print(f"     Store:            {c(pos_df['store_id'].iloc[0], TermColors.CYAN)}")
+        stores = pos_df['store_id'].nunique()
+        print(f"     Stores:           {c(str(stores), TermColors.CYAN)}")
     print(f"     Models trained:   {c(str(len(all_predictions)), TermColors.GREEN)}")
     print(f"     Drift events:     {c(str(sum(1 for d in drift_results if d['drift'])), TermColors.YELLOW)}")
     print(f"     Order reduction:  {c(f'{reduction:.1f}%', TermColors.YELLOW)}")
